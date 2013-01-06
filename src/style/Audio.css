@@ -1,0 +1,170 @@
+/*
+ * MAIN
+ */
+#AUDIO {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	min-height: 500px;
+	min-width: 900px;
+	padding: 0px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+#unitContainer {
+	position: fixed;
+	left: 450px;
+	right: 200px;
+	top: 50px;
+	bottom: 50px;
+	min-width: 300px;
+	min-height: 200px;
+}
+#masterGain {
+	position: fixed;
+	right: 50px;
+	width: 100px;
+	top: 200px;
+	bottom: 50px;
+}
+/*
+ * THE COLLECTION
+ */
+.unitCollection{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	height: 100%;
+	width: 450px;
+}
+.unitItem {
+	text-align: center;
+	width: 100%;
+	height: 20px;
+	padding-top: 4px;
+	font-size: 12px;
+	text-transform: uppercase;
+	border: #fff 1px solid;
+	cursor: hand;
+}
+
+.unitItem.selected {
+	background-color: orange;
+}
+.collectionList {
+	height: 100%;
+	width: 33%;
+	position: absolute;
+}
+.unitCollectionTitle {
+	margin-bottom: 10px;
+}
+#inputList {
+	left: 0px;
+}
+#unitList {
+	left: 33%;
+}
+#outputList {
+	left: 66%;
+}
+/*
+ * UNIT ATTRIBUTES
+ */
+.unitTitle {
+	font-size: 10px;
+	text-transform: uppercase;
+	text-align: center;
+	margin-top: 2%;
+	width: 100%;
+}
+/*
+ * POSITION AND MEASUREMENTS
+ */
+.unitHeight {
+	height: 240px;
+}
+.halfUnit {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-left: -70px;
+	margin-top: -120px;
+	width: 140px;
+	height: 240px;
+	-webkit-box-shadow: 0px 0px 6px 2px rgba(120, 120, 120, .5);
+	-moz-box-shadow: 0px 0px 6px 2px rgba(120, 120, 120, .5);
+	box-shadow: 0px 0px 6px 2px rgba(120, 120, 120, .5);
+	-webkit-border-radius: 15px;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+}
+.fullUnit {
+	width: 280px;
+}
+/*
+ * USEFUL STUFF
+ */
+.shadow {
+	-webkit-box-shadow: 0px 0px 6px 2px rgba(120, 120, 120, .5);
+	-moz-box-shadow: 0px 0px 6px 2px rgba(120, 120, 120, .5);
+	box-shadow: 0px 0px 6px 2px rgba(120, 120, 120, .5);
+}
+.insetShadow {
+
+	-webkit-box-shadow: inset 0px 0px 6px 2px rgba(120, 120, 120, .5);
+	-moz-box-shadow: inset 0px 0px 6px 2px rgba(120, 120, 120, .5);
+	box-shadow: inset 0px 0px 6px 2px rgba(120, 120, 120, .5);
+}
+.roundedCorners {
+	-webkit-border-radius: 15px;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+}
+/*
+ * Gain
+ */
+.gainView {
+	color: white;
+}
+.gainControl {
+	position: absolute;
+	width: 100%;
+	top: 10%;
+	height: 70%;
+}
+.gainIndicator {
+	position: absolute;
+	text-align: center;
+	bottom: 10%;
+	width: 100%;
+	font-size: 12px;
+}
+.gainSlider {
+	margin: auto;
+	width: 100%;
+	height: 100%;
+}
+.ui-slider-vertical .ui-slider-handle {
+	margin-left: -1.35em !important;
+	width: 4em !important;
+}
+
+.gainMute label {
+	width: 80%;
+	margin-left: 10%;
+	position: absolute;
+	bottom: 2%;
+	font-size: 9px;
+	height: 18px;
+}
+
+.gainMeter {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}
+

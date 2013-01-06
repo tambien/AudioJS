@@ -1,0 +1,49 @@
+
+.blackfont {
+	color: #000000;
+}
+.blackbackground {
+	background-color: #000000;
+}
+.greyfont {
+	color: #333;
+}
+.greybackground {
+	background-color: #333;
+}
+.whitefont {
+	color: #FFFFFF;
+}
+.whitebackground {
+	background-color: #FFFFFF;
+}
+.redfont {
+	color: #d4463f;
+}
+.redbackground {
+	background-color: #d4463f;
+}
+.bluefont {
+	color: #0092D2;
+}
+.bluebackground {
+	background-color: #0092D2;
+}
+.orangefont {
+	color: #F58147;
+}
+.orangebackground {
+	background-color: #F58147;
+}
+.greenfont {
+	color: #53CC66;
+}
+.greenbackground {
+	background-color: #53CC66;
+}
+.purplefont {
+	color: #CA60CA;
+}
+.purplebackground {
+	background-color: #CA60CA;
+}
