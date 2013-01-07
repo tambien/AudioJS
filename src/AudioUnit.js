@@ -83,10 +83,10 @@ AUDIO.Unit.View = Backbone.View.extend({
 		//became visible
 		if (unit.get("visible")){
 			AUDIO.container.append(this.$el);
-			this.delegateEvents();
+			//this.delegateEvents();
 		} else {
 			//became invisible
-			this.undelegateEvents();
+			//this.undelegateEvents();
 			this.$el.detach();
 		}
 	}

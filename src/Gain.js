@@ -122,12 +122,6 @@ AUDIO.Gain.View = AUDIO.Unit.View.extend({
 		this.analyserR.connect(this.javascriptNode);
 		this.javascriptNode.connect(AUDIO.context.destination);
 
-		//for testing
-		this.oscillator = AUDIO.context.createOscillator();
-		//this.oscillator.connect(AUDIO.context.destination);
-		this.oscillator.noteOn(0);
-		this.oscillator.connect(this.model.input);
-
 		//context trickery
 		var self = this;
 		//the processing callback

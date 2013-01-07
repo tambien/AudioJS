@@ -40,10 +40,7 @@ var AUDIO = function() {
 		AUDIO.units = new AUDIO.UnitCollection();
 		//the master output
 		AUDIO.output = new AUDIO.MasterGain();
-		var gain = new AUDIO.Gain();
-		gain.connect(AUDIO.output);
-		var gain2 = new AUDIO.Gain();
-		gain2.connect(gain);
+		var osc = new AUDIO.Oscillator().connect(AUDIO.output);
 		//create the master track
 		//masterTrack = new AUDIO.MasterChannel();
 		//push the master track to the array

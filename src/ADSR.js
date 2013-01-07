@@ -1,94 +1,63 @@
 /*
- * OSCILLATOR
+ * ADSR
  *
+ * creates a volume envelope
+ * 
+ * attack and release function trigger the envelope
  */
-AUDIO.Oscillator = AUDIO.Unit.extend({
+AUDIO.ADSR = AUDIO.Unit.extend({
 
-	name : "Oscillator",
+	name : "ADSR",
 
 	initialize : function(attributes, options) {
 		this.superInit(attributes, options);
-		//connect it up
-		this.oscillator.connect(this.output);
-		//the input controls the frequency
-		this.input.connect(this.oscillator.frequency);
-		//start the oscillator
-		this.oscillator.noteOn(0);
+		
 		//make the view
-		this.view = new AUDIO.Oscillator.View({
+		this.view = new AUDIO.ADSR.View({
 			model : this
 		});
 		//bind the listeners
-		this.on("change:type", this.changeType)
-		this.on("change:detune", this.changeDetune)
-		this.on("change:frequency", this.changeFreq)
-
+		/*
+		this.on("change:attack", this.changeAttack)
+		this.on("change:decay", this.changeDecay)
+		this.on("change:sustain", this.changeFreq)
+		this.on("change:release", this.changeFreq)
+		*/
 	},
-	//set some initial values
 	validate : function(attrs) {
-		if(attrs.type < 0 || attrs.type > 3) {
-			return "type must be between 0 and 3";
-		}
-		if(attrs.detune < -50 || attrs.detune > 50) {
-			return "detune out of range";
-		}
+		
 	},
 	defaults : {
-		"detune" : 0,
-		"frequency" : 440,
-		"type" : 0, //sine tone
+		"attack" : 0,
+		"decay" : 440,
+		"sustain" : 0, 
+		"release" : 0,
 	},
-
-	//the oscillator
-	oscillator : AUDIO.context.createOscillator(),
-
-	changeType : function(model) {
-		this.oscillator.type = model.get("type");
-	},
-	changeDetune : function(model) {
-		var detune = model.get("detune");
-		this.oscillator.detune.value = detune;
-	},
-	changeFreq : function(model) {
-		var freq = model.get("frequency");
-		var now = AUDIO.context.currentTime;
-		this.setFrequency(freq, now, .005);
-	},
-	//set frequency from the outside
-	setFrequency : function(freq, time, portamentoTime) {
-		//cancel previously scheduled things
-		this.oscillator.frequency.cancelScheduledValues(time);
-		//go to the frequency
-		if(portamentoTime) {
-			//portamento to freq
-			this.oscillator.frequency.exponentialRampToValueAtTime(freq, time + portamentoTime);
-		} else {
-			this.oscillator.frequency.setValueAtTime(freq, time);
-		}
-		//update the attributes
-		this.set({
-			frequency : freq
-		}, {
-			silent: true
-		});
+	attack : function (time){
+		
+	}, 
+	release : function (time) {
+		
 	}
+	
 });
 
 /*
- * OSCILLATOR VIEW
+ * ADSR VIEW
  *
  */
-AUDIO.Oscillator.View = AUDIO.Unit.View.extend({
+AUDIO.ADSR.View = AUDIO.Unit.View.extend({
 
-	className : "oscillatorView halfUnit blackBackground",
+	className : "adsrView fullUnit blackBackground",
 
+/*
 	events : {
 		"spin #detuneSpinner" : "detuneChange",
 		"spin #typeSpinner" : "typeChange",
 		"spin #frequencySpinner" : "freqChange",
 		"spinchange" : "spinChange",
 	},
-
+*/
 	initialize : function() {
 		this.superInit();
 		//detune knob
