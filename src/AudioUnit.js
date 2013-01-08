@@ -5,6 +5,7 @@
  * this is the basic object from which all the components inherit
  * 
  * default : 1 input, 1 output
+ * 
  */
 
 AUDIO.Unit = Backbone.Model.extend({
@@ -49,6 +50,7 @@ AUDIO.Unit = Backbone.Model.extend({
 		//create a reference to to the connected nodes
 		this.get("outputs").push(node);
 		node.get("inputs").push(this);
+		return this;
 	},
 	//disconnect from all the proceeding nodes
 	disconnect : function() {

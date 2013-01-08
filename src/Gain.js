@@ -214,10 +214,10 @@ AUDIO.Gain.View = AUDIO.Unit.View.extend({
 		var db = 10 * (Math.log(gain) / Math.LN10);
 		this.$number.html(db.toFixed(1));
 		//position the slider
-		// calculate adjustment factor
-		var scale = 0.11512925464970229
-		var val = (Math.log(gain * 100) - 4.605170185988092) / scale;
-		this.$fader.slider("value", val + 100);
+		var val = AUDIO.Util.scaleExp(gain*1000000, 1, 1000000, 1, 100);
+		//var scale = 0.11512925464970229
+		//var val = (Math.log(gain * 100) - 4.605170185988092) / scale;
+		this.$fader.slider("value", val);
 		//set the mute button
 		if(model.get("mute")) {
 			this.$mute[0].checked = true;
@@ -231,10 +231,10 @@ AUDIO.Gain.View = AUDIO.Unit.View.extend({
 	},
 	//update the model when the value has changed
 	sliderChanged : function(event, slider) {
-		// calculate adjustment factor
-		var scale = 0.11512925464970229
-		var val = Math.exp(4.605170185988092 + scale * slider.value);
-		val /= 10000000;
+		var initial = slider.value;
+		//scale it logarithmically
+		var val = AUDIO.Util.scaleLog(initial, 0, 100, 1, 1000000);
+		val /= 1000000;		
 		this.model.set({
 			gain : val
 		}, {
