@@ -40,15 +40,45 @@ var AUDIO = function() {
 		AUDIO.units = new AUDIO.UnitCollection();
 		//the master output
 		AUDIO.output = new AUDIO.MasterGain();
-		var osc = new AUDIO.Oscillator();
-		var adsr = new AUDIO.ADSR().connect(AUDIO.output)
-		osc.connect(adsr);
-		//create the master track
-		//masterTrack = new AUDIO.MasterChannel();
-		//push the master track to the array
-		//masterTrack = new AUDIO.Channel($masterContainer);
-		//the master track connects to the audio output
-		//masterTrack.connect(context.destination);
+		//the metronome
+		AUDIO.metronome = new AUDIO.Metronome();
+		//a little sample synthesizer
+		var gain = new AUDIO.Gain({
+			title : "synth level"
+		}).connect(AUDIO.output);
+		var filter = new AUDIO.Filter().connect(gain);
+		var osc = new AUDIO.Oscillator({
+			title : "tone"
+		}).connect(filter);
+		var tremolo = new AUDIO.Oscillator({
+			title : "tremolo"
+		}).connect(osc);
+		var adsr = new AUDIO.ADSR({
+			release : .1
+		}).connect(osc, 0, 1);
+		var scale = new AUDIO.Scale({
+			toMin : 30,
+			toMax : 400
+		});
+		var filterAdsr = new AUDIO.ADSR({
+			attack : .1,
+			title : "filterADSR"
+		}).connect(scale);
+		scale.connect(filter, 0, 1);
+		//have the adsr trigger each quarter
+		adsr.listenTo(AUDIO.metronome, "change:2n", function(model, value, time) {
+			filterAdsr.triggerAttack(time);
+			filterAdsr.triggerRelease(time);
+			this.triggerAttack(time);
+			this.triggerRelease(time);
+			/*
+			filter.input[1].setValueAtTime(0, time);
+			filter.input[1].linearRampToValueAtTime(200, time+.1);
+			filter.input[1].linearRampToValueAtTime(300, time+.15);
+			filter.input[1].linearRampToValueAtTime(0, time+.2);
+			*/
+			//osc.set("frequency", AUDIO.Util.randomInt(200, 1000), time);
+		});
 	}
 
 	//CHANNELS//////////////////////////////////////////////////////////////////////

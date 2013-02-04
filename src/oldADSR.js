@@ -18,7 +18,6 @@ AUDIO.ADSR = AUDIO.Unit.extend({
 		//the script node
 		this.scriptNode = AUDIO.context.createJavaScriptNode(1024, 0, 1);
 		//the script node is the output
-		//this.scriptNode.connect(this.output[0]);
 		this.output[0] = this.scriptNode;
 		//the release value for smooth retriggering
 		this.releaseValue = 0;

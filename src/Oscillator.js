@@ -1,6 +1,12 @@
 /*
  * OSCILLATOR
  *
+ * @input
+ * 	0 = frequency audio param
+ * 	1 = output gain param
+ *
+ * @output
+ * output 0 = audio
  */
 AUDIO.Oscillator = AUDIO.Unit.extend({
 
@@ -9,9 +15,12 @@ AUDIO.Oscillator = AUDIO.Unit.extend({
 	initialize : function(attributes, options) {
 		this.superInit(attributes, options);
 		//connect it up
-		this.oscillator.connect(this.output);
+		this.oscillator.connect(this.output[0]);
 		//the input controls the frequency
-		this.input.connect(this.oscillator.frequency);
+		this.input[0] = this.oscillator.frequency;
+		this.input[1] = this.output[0].gain;
+		//set it to 0 for being controlled by an envelope
+		this.output[0].gain.value = 0;
 		//start the oscillator
 		this.oscillator.noteOn(0);
 		//make the view
@@ -37,41 +46,31 @@ AUDIO.Oscillator = AUDIO.Unit.extend({
 		"detune" : 0,
 		"frequency" : 440,
 		"type" : 0, //sine tone
+		"portamento" : 0,
 	},
 
 	//the oscillator
 	oscillator : AUDIO.context.createOscillator(),
 
-	changeType : function(model) {
-		this.oscillator.type = model.get("type");
+	changeType : function(model, type) {
+		model.oscillator.type = type;
 	},
-	changeDetune : function(model) {
-		var detune = model.get("detune");
-		this.oscillator.detune.value = detune;
+	changeDetune : function(model, detune) {
+		model.oscillator.detune.value = detune;
 	},
-	changeFreq : function(model) {
-		var freq = model.get("frequency");
-		var now = AUDIO.context.currentTime;
-		this.setFrequency(freq, now, .005);
-	},
-	//set frequency from the outside
-	setFrequency : function(freq, time, portamentoTime) {
-		//cancel previously scheduled things
-		this.oscillator.frequency.cancelScheduledValues(time);
-		//go to the frequency
-		if(portamentoTime) {
-			//portamento to freq
-			this.oscillator.frequency.exponentialRampToValueAtTime(freq, time + portamentoTime);
-		} else {
-			this.oscillator.frequency.setValueAtTime(freq, time);
+	changeFreq : function(model, frequency, time) {
+		var portamento = model.get("portamento");
+		if(time === undefined) {
+			time = AUDIO.context.currentTime;
 		}
-		//update the attributes
-		this.set({
-			frequency : freq
-		}, {
-			silent: true
-		});
-	}
+		model.oscillator.frequency.cancelScheduledValues(time);
+		if(portamento>0) {
+			//portamento to freq
+			model.oscillator.frequency.linearRampToValueAtTime(frequency, time + portamento);
+		} else {
+			model.oscillator.frequency.setValueAtTime(frequency, time);
+		}
+	},
 });
 
 /*
@@ -82,65 +81,55 @@ AUDIO.Oscillator.View = AUDIO.Unit.View.extend({
 
 	className : "oscillatorView halfUnit blackBackground",
 
-	events : {
-		"spin #detuneSpinner" : "detuneChange",
-		"spin #typeSpinner" : "typeChange",
-		"spin #frequencySpinner" : "freqChange",
-		"spinchange" : "spinChange",
-	},
-
 	initialize : function() {
 		this.superInit();
-		//detune knob
-		$("<div class='detune'><label for='detuneSpinner' class='whitefont smallTitle'>DETUNE</label> <input id='detuneSpinner' class='whitefont' name='value'/></div>").appendTo(this.$el);
-		this.$detune = this.$el.find("#detuneSpinner");
 		//frequency indicator
-		$("<div class='frequency'><label for='frequencySpinner' class='whitefont smallTitle'>FREQUENCY</label> <input id='frequencySpinner' class='whitefont' name='value'/></div>").appendTo(this.$el);
-		this.$freq = this.$el.find("#frequencySpinner");
+		this.frequency = new AUDIO.Interface.SmallNumber({
+			container : this.$el,
+			model : this.model,
+			attribute : "frequency",
+			label: "FREQ",
+			min : 20,
+			max : 20000, 
+			top: 60,
+		});
+		//detune indicator
+		this.detune = new AUDIO.Interface.SmallNumber({
+			container : this.$el,
+			model : this.model,
+			attribute : "detune",
+			label: "DETUNE",
+			min : -50,
+			max : 50, 
+			top: 120,
+		})
 		//type indicator
-		$("<div class='type'><label for='typeSpinner' class='whitefont smallTitle'>TYPE</label> <input id='typeSpinner' class='whitefont' name='value'/></div>").appendTo(this.$el);
-		this.$type = this.$el.find("#typeSpinner");
+		this.type = new AUDIO.Interface.SmallNumber({
+			container : this.$el,
+			model : this.model,
+			attribute : "type",
+			label: "TYPE",
+			min : 0,
+			max : 3, 
+			top: 180,
+		})
+		//portamento indicator
+		this.port = new AUDIO.Interface.SmallNumber({
+			container : this.$el,
+			model : this.model,
+			attribute : "portamento",
+			label: "PORT",
+			min : 0,
+			max : 2, 
+			precision: 2,
+			step: .01,
+			top: 240,
+		})
 		this.render(this.model);
 		//this.on("change .detuneKnob", this.detuneChange);
 	},
 	render : function(model) {
-		//setup the knob
-		this.$detune.spinner({
-			min : -50,
-			max : 50,
-		});
-		this.$detune.spinner("value", model.get("detune"));
-		//setup the freq spinner
-		this.$freq.spinner({
-			min : 0,
-			max : 20000,
-		});
-		this.$freq.spinner("value", model.get("frequency"));
-		//setup the type
-		this.$type.spinner({
-			min : 0,
-			max : 3,
-		});
-		this.$type.spinner("value", model.get("type"));
+		
 		return this;
 	},
-	typeChange : function(event, ui) {
-		this.model.set("type", ui.value);
-	},
-	freqChange : function(event, ui) {
-		this.model.set("frequency", ui.value);
-	},
-	detuneChange : function(event, ui) {
-		this.model.set("detune", ui.value);
-	}, 
-	spinChange : function (event, ui){
-		var value = $(event.target).spinner("value");
-		if (event.target.id===this.$freq.attr("id")){
-			this.model.set("frequency", value);
-		} else if (event.target.id===this.$detune.attr("id")){
-			this.model.set("detune", value);
-		} else if (event.target.id===this.$type.attr("id")){
-			this.model.set("type", value);
-		}
-	}
 });

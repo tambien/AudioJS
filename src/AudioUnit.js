@@ -19,9 +19,11 @@ AUDIO.Unit = Backbone.Model.extend({
 	},
 	//the super initializer
 	superInit : function(attributes, options) {
-		//make the input and output
-		this.input = AUDIO.context.createGainNode(),
-		this.output = AUDIO.context.createGainNode();
+		//make the input and outputs
+		this.input = [];
+		this.output = [];
+		this.input[0] = AUDIO.context.createGainNode(),
+		this.output[0] = AUDIO.context.createGainNode();
 		//setup the uniqe id
 		this.id = this.name + AUDIO.units.length;
 		//set the visibility to false by default
@@ -45,11 +47,17 @@ AUDIO.Unit = Backbone.Model.extend({
 		AUDIO.units.add(this);
 	},
 	//connects this node's output to the next ones input
-	connect : function(node) {
-		this.output.connect(node.input);
+	connect : function(node, outputNum, inputNum) {
+		outputNum = outputNum||0;
+		inputNum = inputNum||0;
+		this.output[outputNum].connect(node.input[inputNum]);
 		//create a reference to to the connected nodes
 		this.get("outputs").push(node);
 		node.get("inputs").push(this);
+		return this;
+	},
+	connectParameter : function(parameter){
+		
 		return this;
 	},
 	//disconnect from all the proceeding nodes

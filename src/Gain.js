@@ -1,6 +1,13 @@
 /*
  * GAIN
  *
+ * @input 
+ * input 0 = audio
+ * input 1 = gain param
+ * 
+ * @output
+ * output 0 = audio
+ * 
  */
 AUDIO.Gain = AUDIO.Unit.extend({
 
@@ -10,9 +17,13 @@ AUDIO.Gain = AUDIO.Unit.extend({
 		this.superInit(attributes, options);
 		//create the gain node
 		this.gain = AUDIO.context.createGainNode();
+		//set the second input is the output[0] gain param
+		this.input[1] = this.output[0].gain;
 		//make the connections
-		this.input.connect(this.gain);
-		this.gain.connect(this.output);
+		//input0->gain->output0
+		this.input[0].connect(this.gain);
+		this.gain.connect(this.output[0]);
+		var self = this;
 		//make the view
 		this.view = new AUDIO.Gain.View({
 			model : this
