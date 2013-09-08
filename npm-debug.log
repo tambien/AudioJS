@@ -1,0 +1,50 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/local/bin/npm', 'install', '-g', 'yo' ]
+info using npm@1.1.16
+info using node@v0.6.15
+verbose config file /Users/Yotam/.npmrc
+verbose config file /usr/local/etc/npmrc
+verbose config file /usr/local/lib/node_modules/npm/npmrc
+verbose cache add [ 'yo', null ]
+silly cache add: name, spec, args [ undefined, 'yo', [ 'yo', null ] ]
+verbose parsed url { pathname: 'yo', path: 'yo', href: 'yo' }
+verbose addNamed [ 'yo', '' ]
+verbose addNamed [ null, '' ]
+silly name, range, hasData [ 'yo', '', false ]
+verbose raw, before any munging yo
+verbose url resolving [ 'https://registry.npmjs.org/', './yo' ]
+verbose url resolved https://registry.npmjs.org/yo
+verbose etag "693ZA6VR903RRRE095ETQZGA1"
+http GET https://registry.npmjs.org/yo
+http 304 https://registry.npmjs.org/yo
+silly get cb [ 304,
+silly get cb   { server: 'CouchDB/1.3.1 (Erlang OTP/R15B03)',
+silly get cb     etag: '"693ZA6VR903RRRE095ETQZGA1"',
+silly get cb     date: 'Sun, 08 Sep 2013 20:22:06 GMT',
+silly get cb     'content-length': '0' } ]
+verbose etag yo from cache
+silly name, range, hasData 2 [ 'yo', '', true ]
+silly versions [ 'yo', [] ]
+ERR! Error: No compatible version found: yo
+ERR! No valid targets found.
+ERR! Perhaps not compatible with your version of node?
+ERR!     at installTargetsError (/usr/local/lib/node_modules/npm/lib/cache.js:486:10)
+ERR!     at next_ (/usr/local/lib/node_modules/npm/lib/cache.js:436:17)
+ERR!     at next (/usr/local/lib/node_modules/npm/lib/cache.js:413:44)
+ERR!     at /usr/local/lib/node_modules/npm/lib/cache.js:406:5
+ERR!     at saved (/usr/local/lib/node_modules/npm/lib/utils/npm-registry-client/get.js:151:7)
+ERR!     at Object.oncomplete (/usr/local/lib/node_modules/npm/node_modules/graceful-fs/graceful-fs.js:230:7)
+ERR! You may report this log at:
+ERR!     <http://github.com/isaacs/npm/issues>
+ERR! or email it to:
+ERR!     <npm-@googlegroups.com>
+ERR! 
+ERR! System Darwin 12.4.0
+ERR! command "node" "/usr/local/bin/npm" "install" "-g" "yo"
+ERR! cwd /Users/Yotam/Sites/AudioJS
+ERR! node -v v0.6.15
+ERR! npm -v 1.1.16
+ERR! message No compatible version found: yo
+ERR! message No valid targets found.
+ERR! message Perhaps not compatible with your version of node?
+verbose exit [ 1, true ]

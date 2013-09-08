@@ -1,0 +1,18 @@
+<html>
+<head>
+	<script type="text/javascript" charset="UTF-8" src="../components/Audio.js"></script>
+	<script type="text/javascript" charset="UTF-8" src="../components/Player.js"></script>
+</head>
+<body>
+	<script type="text/javascript">
+
+	var player = new AUDIO.SONG({
+		url : "./assets/oh hey.mp3",
+		onload : function(){
+			player.start();
+		}
+	});
+	player.output.connect(AUDIO.context.destination);
+	</script>
+</body>
+</html>
