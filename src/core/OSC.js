@@ -1,68 +1,127 @@
 "use strict";
 
 /*=============================================================================
-	OSC-Style message/event mediatator pattern
+	OSC-Style message/event mediatator pattern with timing
 =============================================================================*/
 
-AUDIO.OSC = {
+(function(){
 	/*
 		@private
+		@dict
+		a dictionary of all the routes and callbacks
 	*/
-	routes : [],
+	var routes = {};
 	/* 
-		@param {string} route
-		@param {function(AUDIO.OSC.MESSAGE)} callback
+		subscribe method
+		@param {string} address
+		@param {function(AUDIO.MESSAGE)} callback
+		@param {Object=} context optional context
 	*/
-	route : function(route, callback){
-		var r = new AUDIO.OSC.SCHEDULER.ROUTE(route, callback);
-		this.routes.push(r);
+	AUDIO.route  = function(address, callback, context){
+		//bind the context
+		if (context){
+			callback = _.bind(callback, context);
+		}
+		// to keep the OSC-look,
+		// the address should start with a leading slash (remove it)
+		if (address.charAt(0) !== '/'){
+			address = address.substr(1);
+		}
+		//split the address by '/'
+		var splitted = address.split('/');
+		//insert the route into the routes object
+		var routeLevel = routes;
+		for (var depth = 0; depth < splitted.length; depth++){
+			if (_.isUndefined(routeLevel[splitted[depth]]){
+				routeLevel[splitted[depth]].callbacks = [callback];
+			} else {
+				routeLevel = routeLevel[splitted[depth]];
+				if ()
+			}
+		}
+	},
+	/*
+		schedule / trigger a message
+		@param {string} pattern
+		@param {number} timestamp
+		@param {Object=} data
+	*/
+	AUDIO.schedule = function(pattern, timestamp, data){
+
+	},
+	/*
+		trigger a message immediately
+		@param {string} pattern
+		@param {Object=} data
+	*/
+	AUDIO.trigger = function(pattern, data){
+
 	}
-};
+}());
 
 /*=========================================================================
 		SCHEDULER
 =========================================================================*/
 
-AUDIO.OSC.SCHEDULER = {
-	/* 
-		@param {AUDIO.OSC.PACKET} pkt
-	*/
-	addPacket : function ( pkt ){
 
-	},
+AUDIO.SCHEDULER = (function(){
+	/* @const */
+	var bufferSize = 1024;
+
+	/* the javascript node used as the scheduler loop */
+	var jsNode  = AUDIO.context.createJavaScriptNode(bufferSize, 1, 1);
+	jsNode.connect(AUDIO.context.destination);
+	jsNode.onaudioprocess = loop;
+
+	/* @private */
+	var scheduledMsgs = [];
+	
 	/*
-		@private
+		callback loop for audio processing
+		@param {AudioProcessingEvent} event
 	*/
-	loop : function(){
-		
+	function loop ( event ){
+		var bufferSize = event.inputBuffer.length;
+		var bufferTime = bufferSize / AUDIO.context.sampleRate;
+		//when are they going to implement the playbackTime?
+		var playbackTime = event.playbackTime || AUDIO.context.currentTime;
+		var bufferPeriod = playbackTime + bufferTime;
+		//route all of the message's whose timetag is <= the current time period
+		while(scheduledMsgs.length > 0 && scheduledMsgs[0].timetag <= bufferPeriod) {
+			var msg = scheduledMsgs.shift();
+			// match(msg);
+		}
 	}
-};
 
-/*=========================================================================
-		ROUTE
+	return {
+		/* @private */
+		jsNode : jsNode,
+		/* @private */
+		loop : loop,
+		/*
+			@param {Object} msg
+		*/
+		add : function(msg){
+			
+		}
+	}
+}());
 
-		a route and callback
-=========================================================================*/
-
-/*
+/* 
+	@param {string} address
+	@param {Object=} callback
+	@struct
 	@constructor
-	@param {string} pattern
-	@param {function(AUDIO.OSC.MESSAGE)} callback
 */
-
-AUDIO.OSC.SCHEDULER.ROUTE = function(pattern, callback){
-	this.pattern = pattern;
-	this.callback = callback;
-	this.regex = this.patternToRegex(pattern);
+AUDIO.SCHEDULER.ROUTE = function(address, callback){
+	this.address = address
 }
 
 /*
-	@private
-	@param {string} pattern
-	@param {function(AUDIO.OSC.MESSAGE)} callback
-	@return {Object} a RegExp form of the pattern
-*/
-AUDIO.OSC.SCHEDULER.ROUTE.prototype.patternToRegex = function(pattern) {
+AUDIO.SCHEDULER.ROUTE.prototype.patternToRegex = function(pattern) {
+	if (context){
+		_.bind(callback, context);
+	}
 	//translate osc-style patterns into RegExp
 	pattern = pattern.replace("*", ".+");
 	pattern = pattern.replace('{', "(");
@@ -75,11 +134,8 @@ AUDIO.OSC.SCHEDULER.ROUTE.prototype.patternToRegex = function(pattern) {
 	pattern += '$';
 	var regExp = new RegExp(pattern);
 	return regExp;
-};
+};*/
 
-AUDIO.OSC.SCHEDULER.ROUTE.prototype.match = function(address){
-
-}
 	
 
 /*=========================================================================
@@ -87,38 +143,26 @@ AUDIO.OSC.SCHEDULER.ROUTE.prototype.match = function(address){
 =========================================================================*/
 /* 
 	@param {string} address
-	@param {Object} data
+	@param {Object=} data
+	@param {Object=} timestamp
+	@struct
 	@constructor
 */
-AUDIO.OSC.MESSAGE  = function(address, data){
+AUDIO.MESSAGE = function(address, data, timestamp){
 	this.address = address;
 	this.data = data;
+	this.timestamp = parseInt(timestamp)||1;
+	/* @private */
+	this.pattern = this.hasPattern();
+	/* @private */
+	this.addressArray = address.split("/");
+	// //add it to the scheduler
+	// AUDIO.OSC.SCHEDULER.schedule(this);
 };
 
-
-/*=========================================================================
-	PACKET
-=========================================================================*/
-/* 
-	@param {number} timestamp (in milliseconds)
-	@param {Array.<Object>=} messages
-	@constructor
+/*
+	@private
 */
-AUDIO.OSC.PACKET  = function(timestamp, messages){
-	this.timestamp = parseInt(timestamp);
-	this.messages = messages||[];
-	//add it to the scheduler
-	AUDIO.OSC.SCHEDULER.addPacket(this);
-};
-
-/* 
-	adds either an array or a message to the array
-	@param {AUDIO.OSC.MESSAGE | Array.<AUDIO.OSC.MESSAGE>=} messages
-*/
-AUDIO.OSC.PACKET.prototype.addMessage = function(messages){
-	if(Object.prototype.toString.call(messages) == "[object Array]"){
-		this.messages = this.messages.concat(messages);
-	} else {
-		this.messages.push(messages);
-	}
+AUDIO.MESSAGE.prototype.hasPattern = function(){
+	return this.address.match(/[\*\[\]\{\}\-\,?]/)==null;
 }

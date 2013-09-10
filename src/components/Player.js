@@ -31,7 +31,7 @@ AUDIO.SAMPLE = function(params){
 		source = AUDIO.context.createBufferSource();
 		source.buffer = buffer;
 		source.connect(this.output);
-		source.start(time);
+		source.noteOn(time);
 		//set the loop
 		var loop = params.loop || false;
 		source.loop = loop;
@@ -39,12 +39,12 @@ AUDIO.SAMPLE = function(params){
 	//pause
 	this.pause = function(time){
 		time = time || AUDIO.context.currentTime;
-		source.stop(time);
+		source.noteOff(time);
 	}
 	//stop
 	this.stop = function(time){
 		time = time || AUDIO.context.currentTime;
-		source.stop(time);
+		source.noteOff(time);
 	}
 }
 

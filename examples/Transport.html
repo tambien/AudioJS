@@ -1,0 +1,21 @@
+<html>
+<head>
+	<script type="text/javascript" charset="UTF-8" src="../src/dependencies/underscore.js"></script>
+	<script type="text/javascript" charset="UTF-8" src="../src/core/Audio.js"></script>
+	<script type="text/javascript" charset="UTF-8" src="../src/core/Metro.js"></script>
+	<script type="text/javascript" charset="UTF-8" src="../src/core/Transport.js"></script>
+	<script type="text/javascript" charset="UTF-8" src="../src/components/Player.js"></script>
+</head>
+<body>
+	<script type="text/javascript">
+	var player = new AUDIO.SONG({
+		url : "./assets/oh hey.mp3",
+		onload : function(){
+			player.start();
+		}
+	});
+	player.output.connect(AUDIO.context.destination);
+	</script>
+	</script>
+</body>
+</html>
