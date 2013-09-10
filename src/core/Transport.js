@@ -1,7 +1,7 @@
 /*=============================================================================
 	TRANSPORT
 
-	keeps track of the duration of the 
+	does not handle tempo changes once the metronome is started
 =============================================================================*/
 
 "use strict";
@@ -54,12 +54,12 @@ AUDIO.TRANS = {
 		@return {number} the measure number
 	*/
 	getMeasure : function(){
-		var elapsedTime = this.getTime();
+		return parseInt(this.getTime() / AUDIO.METRO.duration("1n"));
 	},
 	/*
 		@return {number} the beat number
 	*/
 	getBeat : function(){
-
+		return parseInt(this.getTime() / AUDIO.METRO.duration("4n")) % AUDIO.METRO.timeSignature[0];
 	}
 }

@@ -100,7 +100,7 @@ AUDIO.METRO = {
 		@return {number} duration of a note string
 		accepts relative values as well
 	*/
-	time : function( note ) {
+	duration : function( note ) {
 		var dur = this.beatDurations[note];
 		if (!_.isUndefined(dur)) {
 			return dur;
