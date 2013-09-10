@@ -8,7 +8,7 @@
 <body>
 	<script type="text/javascript">
 	var player = new AUDIO.SAMPLE( "./assets/oh hey.mp3", function(){ 
-		player.loop(0, 4.5, .1);
+		player.start("+0", 4, "2n");
 	});
 	player.output.connect(AUDIO.context.destination);
 	</script>

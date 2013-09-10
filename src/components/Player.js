@@ -13,6 +13,7 @@ AUDIO.SAMPLE = function(url, callback){
 	this.output = AUDIO.context.createGainNode();
 	this.buffer = [];
 	this.source = null;
+	this.state = AUDIO.SAMPLE.states.LOADING;
 	//load it up
 	var request = new XMLHttpRequest();
 	request.open('GET', url, true);
@@ -22,6 +23,7 @@ AUDIO.SAMPLE = function(url, callback){
 	request.onload = function() {
 		AUDIO.context.decodeAudioData(request.response, function(b) {
 			self.buffer = b;
+			self.state = AUDIO.SAMPLE.states.READY;
 			if (callback){
 				callback();
 			}
@@ -36,18 +38,22 @@ AUDIO.SAMPLE = function(url, callback){
 	@param {number=} duration
 */
 AUDIO.SAMPLE.prototype.start = function(time, start, duration){
-	time = time || AUDIO.context.currentTime;
-	start = start || 0;
-	duration = duration || (this.buffer.duration - start);
-	var source = this.source;
-	source = AUDIO.context.createBufferSource();
-	source.buffer = this.buffer;
-	source.connect(this.output);
-	if (!_.isUndefined(source.start)){
-		source.start(time, start, duration);
+	if (this.state === AUDIO.SAMPLE.states.READY){
+		time = this.parseTime(time);
+		start = this.parseTime(start);
+		duration = this.parseTime(duration) || (this.buffer.duration - start);
+		var source = this.source;
+		source = AUDIO.context.createBufferSource();
+		source.buffer = this.buffer;
+		source.connect(this.output);
+		if (!_.isUndefined(source.start)){
+			source.start(time, start, duration);
+		} else {
+			//fall back to older web audio implementation
+			source.noteGrainOn(time, start, duration);
+		}
 	} else {
-		//fall back to older web audio implementation
-		source.noteGrainOn(time, start, duration);
+		throw new Error("cannot play file before loaded");
 	}
 }
 
@@ -57,21 +63,25 @@ AUDIO.SAMPLE.prototype.start = function(time, start, duration){
 	@param {number=} duration
 */
 AUDIO.SAMPLE.prototype.loop = function(time, start, duration){
-	time = time || AUDIO.context.currentTime;
-	start = start || 0;
-	duration = duration || (this.buffer.duration - start);
-	var source = this.source;
-	source = AUDIO.context.createBufferSource();
-	source.buffer = this.buffer;
-	source.loop = true;
-	source.connect(this.output);
-	if (!_.isUndefined(source.loopStart) && !_.isUndefined(source.loopEnd)){
-		source.loopStart = start;
-		source.loopEnd = duration + start;
-		source.start(time, start, duration);
+	if (this.state === AUDIO.SAMPLE.states.READY){
+		time = this.parseTime(time);
+		start = this.parseTime(start);
+		duration = this.parseTime(duration) || (this.buffer.duration - start);
+		var source = this.source;
+		source = AUDIO.context.createBufferSource();
+		source.buffer = this.buffer;
+		source.loop = true;
+		source.connect(this.output);
+		if (!_.isUndefined(source.loopStart) && !_.isUndefined(source.loopEnd)){
+			source.loopStart = start;
+			source.loopEnd = duration + start;
+			source.start(time, start, duration);
+		} else {
+			//fall back to older web audio implementation
+			source.noteGrainOn(time, start, duration);
+		}
 	} else {
-		//fall back to older web audio implementation
-		source.noteGrainOn(time, start, duration);
+		throw new Error("cannot play file before loaded");
 	}
 }
 
@@ -79,14 +89,35 @@ AUDIO.SAMPLE.prototype.loop = function(time, start, duration){
 	@param {number=} time
 */
 AUDIO.SAMPLE.prototype.stop = function(time){
-	time = time || AUDIO.context.currentTime;
+	time = this.parseTime(time);
 	if (!_.isUndefined(source.stop)){
 		this.source.stop(time);
 	} else {
 		//fall back to older web audio implementation
 		this.source.noteOff(time);
 	}
-	
+}
+
+/**
+	times can be relative or beat relative
+	@example 1, 4n, +.5, +4t
+	@private
+	@param {number|string|undefined} time
+	@return {number} the play time
+*/
+AUDIO.SAMPLE.prototype.parseTime = function(time){
+	if (_.isNumber(time)){
+		return time;
+	} else if (_.isString(time)){
+		//if it's a string it could be 1n or +1 or +1n
+		if (time.charAt(0) === "+"){
+			return this.parseTime(time.substr(1)) + AUDIO.context.currentTime;
+		} else {
+			return AUDIO.METRO.duration(time);
+		}
+	} else if (_.isUndefined(time)){
+		return 0;
+	}
 }
 
 /**
@@ -94,8 +125,7 @@ AUDIO.SAMPLE.prototype.stop = function(time){
 */
 AUDIO.SAMPLE.states = {
 	LOADING : 0,
-	READY : 1,
-	PLAYING : 2
+	LOADED : 1
 }
 
 /*=============================================================================
