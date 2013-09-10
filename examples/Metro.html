@@ -7,11 +7,8 @@
 </head>
 <body>
 	<script type="text/javascript">
-	var player = new AUDIO.SONG({
-		url : "./assets/oh hey.mp3",
-		onload : function(){
-			player.start();
-		}
+	var player = new AUDIO.SAMPLE( "./assets/oh hey.mp3", function(){ 
+		player.loop(0, 4.5, .1);
 	});
 	player.output.connect(AUDIO.context.destination);
 	</script>

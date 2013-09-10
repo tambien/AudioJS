@@ -4,48 +4,98 @@
 	a simple sample player
 =============================================================================*/
 
-AUDIO.SAMPLE = function(params){
-
+/**
+	@constructor
+	@param {string} url
+	@param {function()=} callback
+*/
+AUDIO.SAMPLE = function(url, callback){
 	this.output = AUDIO.context.createGainNode();
-
-	//the buffer
-	var buffer, source;
-
+	this.buffer = [];
+	this.source = null;
 	//load it up
-	var url = params.url;
 	var request = new XMLHttpRequest();
 	request.open('GET', url, true);
 	request.responseType = 'arraybuffer';
 	// Decode asynchronously
+	var self = this;
 	request.onload = function() {
 		AUDIO.context.decodeAudioData(request.response, function(b) {
-			buffer = b;
-			params.onload();
+			self.buffer = b;
+			if (callback){
+				callback();
+			}
 		});
 	}
 	request.send();
+}
 
-	//play
-	this.start = function(time){
-		time = time || AUDIO.context.currentTime;
-		source = AUDIO.context.createBufferSource();
-		source.buffer = buffer;
-		source.connect(this.output);
-		source.noteOn(time);
-		//set the loop
-		var loop = params.loop || false;
-		source.loop = loop;
+/**
+	@param {number=} time
+	@param {number=} start
+	@param {number=} duration
+*/
+AUDIO.SAMPLE.prototype.start = function(time, start, duration){
+	time = time || AUDIO.context.currentTime;
+	start = start || 0;
+	duration = duration || (this.buffer.duration - start);
+	var source = this.source;
+	source = AUDIO.context.createBufferSource();
+	source.buffer = this.buffer;
+	source.connect(this.output);
+	if (!_.isUndefined(source.start)){
+		source.start(time, start, duration);
+	} else {
+		//fall back to older web audio implementation
+		source.noteGrainOn(time, start, duration);
 	}
-	//pause
-	this.pause = function(time){
-		time = time || AUDIO.context.currentTime;
-		source.noteOff(time);
+}
+
+/**
+	@param {number=} time
+	@param {number=} start
+	@param {number=} duration
+*/
+AUDIO.SAMPLE.prototype.loop = function(time, start, duration){
+	time = time || AUDIO.context.currentTime;
+	start = start || 0;
+	duration = duration || (this.buffer.duration - start);
+	var source = this.source;
+	source = AUDIO.context.createBufferSource();
+	source.buffer = this.buffer;
+	source.loop = true;
+	source.connect(this.output);
+	if (!_.isUndefined(source.loopStart) && !_.isUndefined(source.loopEnd)){
+		source.loopStart = start;
+		source.loopEnd = duration + start;
+		source.start(time, start, duration);
+	} else {
+		//fall back to older web audio implementation
+		source.noteGrainOn(time, start, duration);
 	}
-	//stop
-	this.stop = function(time){
-		time = time || AUDIO.context.currentTime;
-		source.noteOff(time);
+}
+
+/**
+	@param {number=} time
+*/
+AUDIO.SAMPLE.prototype.stop = function(time){
+	time = time || AUDIO.context.currentTime;
+	if (!_.isUndefined(source.stop)){
+		this.source.stop(time);
+	} else {
+		//fall back to older web audio implementation
+		this.source.noteOff(time);
 	}
+	
+}
+
+/**
+	@enum
+*/
+AUDIO.SAMPLE.states = {
+	LOADING : 0,
+	READY : 1,
+	PLAYING : 2
 }
 
 /*=============================================================================
@@ -54,7 +104,7 @@ AUDIO.SAMPLE = function(params){
 	used for longer sounds
 	if MediaElementAudioSourceNode is not supported, falls back to SAMPLE
 =============================================================================*/
-
+/*
 AUDIO.SONG = function(params){
 
 	this.output = AUDIO.context.createGainNode();
@@ -85,4 +135,4 @@ AUDIO.SONG = function(params){
 	this.stop = function(){
 		audioElement.stop();	
 	}
-}
+}*/

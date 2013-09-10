@@ -8,7 +8,7 @@ AUDIO.METRO = {
 	//defaults to 120 in 4/4
 	bpm : 120,
 	timeSignature : [4,4],
-	/* 
+	/** 
 		@dict 
 		@private
 		the durations of the beats in seconds
@@ -26,7 +26,7 @@ AUDIO.METRO = {
 		"32n": 0.0625,
 		"32t": 1/24
 	},
-	/* 
+	/**
 		@dict 
 		@private
 		the number of beats in a measure in 4/4
@@ -42,9 +42,9 @@ AUDIO.METRO = {
 		"16n" : 16,
 		"16t" : 24,
 		"32n" : 32,
-		"32t" : 48,
+		"32t" : 48
 	},
-	/* 
+	/**
 		@dict 
 		@const
 		@private
@@ -61,52 +61,53 @@ AUDIO.METRO = {
 		"16n" : 16,
 		"16t" : 24,
 		"32n" : 32,
-		"32t" : 48,
+		"32t" : 48
 	},
-	/*
+	/**
 		@param {number} bpm
 		updates the time bpm
 	*/
 	setTempo : function(bpm) {
-		this.bpm = bpm;
-		var timeSigRatio = this.timeSignature[0] / this.timeSignature[1];
+		AUDIO.METRO.bpm = bpm;
+		var timeSignature = AUDIO.METRO.timeSignature;
+		var timeSigRatio = timeSignature[0] / timeSignature[1];
 		var measureInSeconds = (60 / bpm) * 4 * timeSigRatio;
 		//set the durations of all the subdivisions
-		for(beat in this.beatDurations) {
-			var BperM = this.beatsPerMeasure[beat];
+		for(var beat in AUDIO.METRO.beatDurations) {
+			var BperM = AUDIO.METRO.beatsPerMeasure[beat];
 			var subTime = measureInSeconds / BperM;
-			this.beatDurations[beat] = subTime;
+			AUDIO.METRO.beatDurations[beat] = subTime;
 		}
 	},
-	/*
+	/**
 		@param {Array.<number>} timeSig
 		updates the time siganture
 	*/
 	setTimeSignature : function(timeSig) {
-		this.timeSignature = timeSig;
+		AUDIO.METRO.timeSignature = timeSig;
 		//update the beats per measure object
-		for(subdivision in this.measureSubdivision) {
+		for(var subdivision in AUDIO.METRO.measureSubdivision) {
 			//don't count 1n since that's always 1
 			if(subdivision !== '1n') {
-				var beatCount = parseInt(this.measureSubdivision[subdivision] * (timeSig[0] / timeSig[1]));
-				this.beatsPerMeasure[subdivision] = beatCount;
+				var beatCount = parseInt(AUDIO.METRO.measureSubdivision[subdivision] * (timeSig[0] / timeSig[1]), 10);
+				AUDIO.METRO.beatsPerMeasure[subdivision] = beatCount;
 			}
 		}
 		//update the tempo values
-		this.setTempo(this.bpm);
+		AUDIO.METRO.setTempo(AUDIO.METRO.bpm);
 	},
-	/*
+	/**
 		@param {string} note
 		@return {number} duration of a note string
 		accepts relative values as well
 	*/
 	duration : function( note ) {
-		var dur = this.beatDurations[note];
+		var dur = AUDIO.METRO.beatDurations[note];
 		if (!_.isUndefined(dur)) {
 			return dur;
 		} else if (note.charAt(0)==="+") {
 			//remove the + and test the note string
-			return this.duration(note.substr(1)) + AUDIO.context.currentTime;
+			return AUDIO.METRO.duration(note.substr(1)) + AUDIO.context.currentTime;
 		} else {
 			return 0;
 		}

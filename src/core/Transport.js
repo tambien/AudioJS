@@ -4,62 +4,66 @@
 	does not handle tempo changes once the metronome is started
 =============================================================================*/
 
-"use strict";
-
 AUDIO.TRANS = {
-	/* @private */
+	/**	@private */
 	startTime : 0,
-	/* @private */
+	/**	@private */
 	pauseDuration : 0,
-	/* @private */
+	/**	@private */
 	pausedTime : 0,
-	/* @private */
+	/**	@private */
 	state : 'READY',
 	/* start / restart the transport */
 	start : function(){
-		if (this.state === "READY" || this.state === "STOPPED"){
-			this.startTime = AUDIO.context.currentTime;
-		} else if (this.state ==="PAUSED"){
-			this.pauseDuration += AUDIO.context.currentTime - this.pausedTime;
+		var self = AUDIO.TRANS;
+		if (self.state === "READY" || self.state === "STOPPED"){
+			self.startTime = AUDIO.context.currentTime;
+		} else if (self.state ==="PAUSED"){
+			self.pauseDuration += AUDIO.context.currentTime - self.pausedTime;
 		}
-		this.state = "STARTED";
+		self.state = "STARTED";
 	},
 	/* stop the metro */
 	stop : function(){
-		this.state = "STOPPED";
-		this.startTime = 0;
-		this.pauseDuration = 0;
-		this.pausedTime = 0;
+		var self = AUDIO.TRANS;
+		self.state = "STOPPED";
+		self.startTime = 0;
+		self.pauseDuration = 0;
+		self.pausedTime = 0;
 	},
 	/* pause it */
 	pause : function(){
-		if (this.state === "STARTED"){
-			this.state = "PAUSED";
-			this.pausedTime = AUDIO.context.currentTime;
+		var self = AUDIO.TRANS;
+		if (self.state === "STARTED"){
+			self.state = "PAUSED";
+			self.pausedTime = AUDIO.context.currentTime;
 		}
 	},
 	/*
 		@return {number} elapsed time in seconds
 	*/
 	getTime : function(){
-		if (this.state === "STARTED"){
-			return AUDIO.context.currentTime - this.startTime - this.pauseDuration;
-		} else if (this.state === "PAUSED"){
-			return this.pausedTime - this.startTime - this.pauseDuration ;
+		var self = AUDIO.TRANS;
+		if (self.state === "STARTED"){
+			return AUDIO.context.currentTime - self.startTime - self.pauseDuration;
+		} else if (self.state === "PAUSED"){
+			return self.pausedTime - self.startTime - self.pauseDuration ;
 		} else {
 			return 0;
 		}
 	},
-	/*
+	/**
 		@return {number} the measure number
 	*/
 	getMeasure : function(){
-		return parseInt(this.getTime() / AUDIO.METRO.duration("1n"));
+		var self = AUDIO.TRANS;
+		return parseInt(self.getTime() / AUDIO.METRO.duration("1n"), 10);
 	},
-	/*
+	/**
 		@return {number} the beat number
 	*/
 	getBeat : function(){
-		return parseInt(this.getTime() / AUDIO.METRO.duration("4n")) % AUDIO.METRO.timeSignature[0];
+		var self = AUDIO.TRANS;
+		return parseInt(self.getTime() / AUDIO.METRO.duration("4n"), 10) % AUDIO.METRO.timeSignature[0];
 	}
 }

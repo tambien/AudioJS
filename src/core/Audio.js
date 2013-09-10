@@ -1,5 +1,9 @@
+"use strict";
+
 var AUDIO = {
-	/* @const */
+	/* 
+		@const 
+	*/
 	version : "0.0.2",
 	/* the audio context */
 	context : new webkitAudioContext(),
@@ -8,6 +12,6 @@ var AUDIO = {
 		@param {number} bpm
 	*/
 	setTempo : function( bpm ){
-		this.METRO.setTempo(bpm);
+		// this.METRO.setTempo(bpm);
 	}
 }
