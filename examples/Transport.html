@@ -15,7 +15,9 @@
 		}
 	});
 	player.output.connect(AUDIO.context.destination);
-	</script>
+	setInterval(function(){
+		console.log(AUDIO.TRANS.getTime());
+	}, 1000);
 	</script>
 </body>
 </html>
