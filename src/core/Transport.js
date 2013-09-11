@@ -1,7 +1,7 @@
 /*=============================================================================
 	TRANSPORT
 
-	does not handle tempo changes once the metronome is started
+	cannot handle tempo changes once the metronome is started
 =============================================================================*/
 
 AUDIO.TRANS = {

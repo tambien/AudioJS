@@ -335,6 +335,10 @@ AUDIO.SAMPLE.states = {
 	LOADING : 0,
 	LOADED : 1
 }
+var player = new AUDIO.SAMPLE( "./assets/oh hey.mp3", function(){ 
+		player.start("+0", 4, "2n");
+	});
+	player.output.connect(AUDIO.context.destination);
 
 /*=============================================================================
 	SONG PLAYER
