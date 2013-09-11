@@ -113,7 +113,7 @@ AUDIO.METRO = {
 		} else if (note.charAt(0)==="+") {
 			//remove the + and test the note string
 			return AUDIO.METRO.duration(note.substr(1)) + AUDIO.context.currentTime;
-		} else if (!this.beatFormat.test(note)){
+		} else if (!AUDIO.METRO.beatFormat.test(note)){
 			return parseFloat(note);
 		} else {
 			return 0;

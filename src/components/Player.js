@@ -23,7 +23,7 @@ AUDIO.SAMPLE = function(url, callback){
 	request.onload = function() {
 		AUDIO.context.decodeAudioData(request.response, function(b) {
 			self.buffer = b;
-			self.state = AUDIO.SAMPLE.states.READY;
+			self.state = AUDIO.SAMPLE.states.LOADED;
 			if (callback){
 				callback();
 			}
@@ -38,7 +38,7 @@ AUDIO.SAMPLE = function(url, callback){
 	@param {number=} duration
 */
 AUDIO.SAMPLE.prototype.start = function(time, start, duration){
-	if (this.state === AUDIO.SAMPLE.states.READY){
+	if (this.state === AUDIO.SAMPLE.states.LOADED){
 		time = this.parseTime(time);
 		start = this.parseTime(start);
 		duration = this.parseTime(duration) || (this.buffer.duration - start);
@@ -63,7 +63,7 @@ AUDIO.SAMPLE.prototype.start = function(time, start, duration){
 	@param {number=} duration
 */
 AUDIO.SAMPLE.prototype.loop = function(time, start, duration){
-	if (this.state === AUDIO.SAMPLE.states.READY){
+	if (this.state === AUDIO.SAMPLE.states.LOADED){
 		time = this.parseTime(time);
 		start = this.parseTime(start);
 		duration = this.parseTime(duration) || (this.buffer.duration - start);
@@ -90,11 +90,12 @@ AUDIO.SAMPLE.prototype.loop = function(time, start, duration){
 */
 AUDIO.SAMPLE.prototype.stop = function(time){
 	time = this.parseTime(time);
+	var source = this.source;
 	if (!_.isUndefined(source.stop)){
-		this.source.stop(time);
+		source.stop(time);
 	} else {
 		//fall back to older web audio implementation
-		this.source.noteOff(time);
+		source.noteOff(time);
 	}
 }
 
@@ -107,15 +108,16 @@ AUDIO.SAMPLE.prototype.stop = function(time){
 */
 AUDIO.SAMPLE.prototype.parseTime = function(time){
 	if (_.isNumber(time)){
-		return time;
+		return parseFloat(time);
 	} else if (_.isString(time)){
 		//if it's a string it could be 1n or +1 or +1n
 		if (time.charAt(0) === "+"){
 			return this.parseTime(time.substr(1)) + AUDIO.context.currentTime;
 		} else {
-			return AUDIO.METRO.duration(time);
+			//cast it to a string
+			return AUDIO.METRO.duration(time+"");
 		}
-	} else if (_.isUndefined(time)){
+	} else {
 		return 0;
 	}
 }
